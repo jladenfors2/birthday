@@ -12,9 +12,11 @@ Live: [https://katarina50.up.railway.app](https://katarina50.up.railway.app)
 2. Gästen öppnar länken, spelar in 10 sekunder och skickar.
 3. Hälsningarna dyker upp i valvet. Glob-länken är till för att spara och visa upp dem sen.
 
-Ingen inloggning. Länken räcker.
+Gästlänken kräver ingen inloggning. Värdsidan är skyddad med användarnamn och lösenord.
 
 ## Köra lokalt
+
+Kopiera `.env.example` till `.env` och fyll i `ADMIN_USER`, `ADMIN_PASSWORD` och `SESSION_SECRET`. Lösenordet ska inte ligga i git.
 
 ```bash
 npm install
@@ -22,3 +24,5 @@ npm start
 ```
 
 Öppna [http://localhost:3000](http://localhost:3000). Kameran kräver HTTPS eller `localhost`.
+
+På Railway sätts samma värden som hemliga miljövariabler.

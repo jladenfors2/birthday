@@ -27,7 +27,12 @@
               <span class="brand-kicker" data-i18n="hostKicker">Värdsida</span>
             </div>
           </div>
-          <span class="chip secret"><span class="dot"></span> <span data-i18n="secretSurprise">Hemlig överraskning</span></span>
+          <div class="row">
+            <span class="chip secret"><span class="dot"></span> <span data-i18n="secretSurprise">Hemlig överraskning</span></span>
+            <form action="/logout" method="post">
+              <button class="btn btn-secondary btn-compact" type="submit">Logga ut</button>
+            </form>
+          </div>
         </div>
       </div>
     </header>

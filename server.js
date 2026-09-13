@@ -1,10 +1,26 @@
 import express from "express";
 import multer from "multer";
-import { randomBytes } from "crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 import fs from "fs/promises";
-import { existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+
+function loadEnvFile() {
+  const envPath = path.join(path.dirname(fileURLToPath(import.meta.url)), ".env");
+  if (!existsSync(envPath)) return;
+  for (const line of readFileSync(envPath, "utf8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    const value = trimmed.slice(eq + 1).trim();
+    if (key && process.env[key] === undefined) process.env[key] = value;
+  }
+}
+
+loadEnvFile();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
@@ -13,6 +29,9 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, "uploads");
 const PUBLIC_DIR = path.join(__dirname, "public");
 const PORT = Number(process.env.PORT) || 3000;
 const ID_PATTERN = /^[a-f0-9]{16}$/;
+const ADMIN_USER = process.env.ADMIN_USER || "";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
+const SESSION_SECRET = process.env.SESSION_SECRET || randomBytes(32).toString("hex");
 
 if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 if (!existsSync(UPLOAD_DIR)) mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -110,13 +129,88 @@ const upload = multer({
   },
 });
 
+function parseCookies(req) {
+  const header = req.headers.cookie || "";
+  const out = {};
+  for (const part of header.split(";")) {
+    const eq = part.indexOf("=");
+    if (eq === -1) continue;
+    out[part.slice(0, eq).trim()] = decodeURIComponent(part.slice(eq + 1).trim());
+  }
+  return out;
+}
+
+function safeEqual(a, b) {
+  const left = Buffer.from(String(a));
+  const right = Buffer.from(String(b));
+  if (!left.length || !right.length || left.length !== right.length) return false;
+  return timingSafeEqual(left, right);
+}
+
+function sessionToken() {
+  const payload = "ok";
+  const sig = createHmac("sha256", SESSION_SECRET).update(payload).digest("hex");
+  return `${payload}.${sig}`;
+}
+
+function isAuthed(req) {
+  const token = parseCookies(req).k50_admin || "";
+  const [payload, sig] = token.split(".");
+  if (payload !== "ok" || !sig) return false;
+  const expected = createHmac("sha256", SESSION_SECRET).update(payload).digest("hex");
+  return safeEqual(sig, expected);
+}
+
+function cookieHeader(clear = false) {
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  if (clear) {
+    return `k50_admin=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0${secure}`;
+  }
+  return `k50_admin=${encodeURIComponent(sessionToken())}; HttpOnly; Path=/; SameSite=Lax; Max-Age=2592000${secure}`;
+}
+
+function requireAdminPage(req, res, next) {
+  if (isAuthed(req)) return next();
+  res.redirect("/login");
+}
+
+function requireAdminApi(req, res, next) {
+  if (isAuthed(req)) return next();
+  res.status(401).json({ error: "Login required." });
+}
+
 const app = express();
 app.use(express.json());
-app.use(express.static(PUBLIC_DIR));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static(PUBLIC_DIR, { index: false }));
 app.use("/uploads", express.static(UPLOAD_DIR, { fallthrough: false }));
 app.get("/vendor/three.module.js", (_req, res) => {
   res.type("application/javascript");
   res.sendFile(path.join(__dirname, "node_modules/three/build/three.module.js"));
+});
+
+app.get("/login", (req, res) => {
+  if (isAuthed(req)) return res.redirect("/");
+  res.sendFile(path.join(PUBLIC_DIR, "login.html"));
+});
+
+app.post("/login", (req, res) => {
+  const user = String(req.body?.username || "");
+  const pass = String(req.body?.password || "");
+  if (!ADMIN_USER || !ADMIN_PASSWORD || !safeEqual(user, ADMIN_USER) || !safeEqual(pass, ADMIN_PASSWORD)) {
+    return res.redirect("/login?error=1");
+  }
+  res.setHeader("Set-Cookie", cookieHeader());
+  res.redirect("/");
+});
+
+app.post("/logout", (_req, res) => {
+  res.setHeader("Set-Cookie", cookieHeader(true));
+  res.redirect("/login");
+});
+
+app.get("/", requireAdminPage, (_req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "index.html"));
 });
 
 app.get("/w/:id", (req, res) => {
@@ -131,7 +225,7 @@ function campaign(store) {
   return store.sessions[0] || null;
 }
 
-app.post("/api/sessions", async (req, res) => {
+app.post("/api/sessions", requireAdminApi, async (req, res) => {
   const store = await readStore();
   const existing = campaign(store);
   if (existing) return res.json(sessionPayload(existing, req));
@@ -147,7 +241,7 @@ app.post("/api/sessions", async (req, res) => {
   res.status(201).json(sessionPayload(session, req));
 });
 
-app.get("/api/sessions", async (req, res) => {
+app.get("/api/sessions", requireAdminApi, async (req, res) => {
   const store = await readStore();
   res.json(store.sessions.map((session) => sessionPayload(session, req)));
 });
@@ -163,7 +257,7 @@ app.get("/api/sessions/:id", async (req, res) => {
   res.json(sessionPayload(session, req));
 });
 
-app.delete("/api/sessions/:id/wishes/:wishId", async (req, res) => {
+app.delete("/api/sessions/:id/wishes/:wishId", requireAdminApi, async (req, res) => {
   if (!ID_PATTERN.test(req.params.id) || !ID_PATTERN.test(req.params.wishId)) {
     return res.status(400).json({ error: "Invalid link." });
   }
