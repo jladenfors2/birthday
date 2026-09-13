@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Katarinas 50-årsjubileum · Värd</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <div class="brand-row">
+          <div class="brand">
+            <img src="/mark.svg" alt="" />
+            <div class="brand-copy">
+              <span class="brand-title" data-i18n="brandTitle">Katarinas 50-årsjubileum</span>
+              <span class="brand-kicker" data-i18n="hostKicker">Värdsida</span>
+            </div>
+          </div>
+          <span class="chip secret"><span class="dot"></span> <span data-i18n="secretSurprise">Hemlig överraskning</span></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="stack-lg">
+      <div class="stack">
+        <span class="chip gold">
+          <span class="material-symbols-outlined icon-fill" style="font-size: 15px">auto_awesome</span>
+          <span data-i18n="suiteChip">Jubileumssvit</span>
+        </span>
+        <h1 data-i18n="hostHeadline">Länkstudio för gäster</h1>
+        <p class="lede" data-i18n="hostLede">
+          Skapa en hemlig länk, skicka den till vänner och familj, och samla in 10-sekunders födelsedagshälsningar till Katarina.
+        </p>
+      </div>
+
+      <section class="card tint stack">
+        <span class="glow a"></span>
+        <span class="glow b"></span>
+        <div>
+          <p class="brand-kicker" data-i18n="studioKicker">Studiogenerator</p>
+          <h2 data-i18n="createLink">Skapa en hyllningslänk</h2>
+        </div>
+        <div class="stack">
+          <p class="brand-kicker" data-i18n="linkLanguage">Språk på länken</p>
+          <div class="lang-toggle" role="group" aria-label="Language">
+            <button type="button" data-lang="sv" class="on">Svenska</button>
+            <button type="button" data-lang="en">English</button>
+          </div>
+          <p class="muted" data-i18n="langHint">Välj språket vännerna ser när de öppnar länken.</p>
+        </div>
+        <button id="create" class="btn btn-primary" type="button">
+          <span class="material-symbols-outlined icon-fill">videocam</span>
+          <span data-i18n="capture">Samla födelsedagshälsningar</span>
+        </button>
+      </section>
+
+      <section id="active" class="stack-lg hidden">
+        <div class="card stack">
+          <h2 data-i18n="shareLink">Dela den här länken</h2>
+          <p class="muted" data-i18n="shareHint">Alla med länken kan spela in en hälsning. Ingen inloggning behövs.</p>
+          <div class="link-box">
+            <input id="share-url" readonly />
+            <button id="copy" class="btn btn-secondary btn-compact" type="button">
+              <span class="material-symbols-outlined">content_copy</span>
+              <span data-i18n="copy">Kopiera</span>
+            </button>
+            <button id="open-link" class="btn btn-secondary btn-compact" type="button">
+              <span class="material-symbols-outlined">open_in_new</span>
+              <span data-i18n="open">Öppna</span>
+            </button>
+          </div>
+          <div class="share-row">
+            <a id="share-whatsapp" class="btn btn-secondary btn-compact" target="_blank" rel="noopener noreferrer">
+              <span class="material-symbols-outlined">chat</span>
+              WhatsApp
+            </a>
+            <a id="share-email" class="btn btn-secondary btn-compact">
+              <span class="material-symbols-outlined">mail</span>
+              Email
+            </a>
+          </div>
+          <p id="copy-status" class="ok-text hidden" data-i18n="copied">Kopierad.</p>
+        </div>
+
+        <div class="card stack">
+          <span class="chip gold">
+            <span class="material-symbols-outlined icon-fill" style="font-size: 15px">public</span>
+            <span data-i18n="keepForever">Spara för alltid</span>
+          </span>
+          <h2 data-i18n="globeTitle">Jubileumsgloben</h2>
+          <p class="muted" data-i18n="globeHint">
+            När hälsningarna är inne, öppna den här sidan. Det är ett minne som består — spara länken.
+          </p>
+          <div class="link-box">
+            <input id="memory-url" readonly />
+            <button id="copy-memory" class="btn btn-secondary btn-compact" type="button">
+              <span class="material-symbols-outlined">content_copy</span>
+              <span data-i18n="copy">Kopiera</span>
+            </button>
+            <button id="open-memory" class="btn btn-secondary btn-compact" type="button">
+              <span class="material-symbols-outlined">open_in_new</span>
+              <span data-i18n="openGlobe">Öppna globen</span>
+            </button>
+          </div>
+          <p id="memory-copied" class="ok-text hidden" data-i18n="copied">Kopierad.</p>
+        </div>
+
+        <div class="stack">
+          <div class="brand-row">
+            <h2 data-i18n="vaultTitle">Inkomna hälsningar</h2>
+            <span id="wish-count" class="chip gold hidden"></span>
+          </div>
+          <p id="empty" class="muted" data-i18n="emptyVault">Inga hälsningar än. De dyker upp här när någon skickar en.</p>
+          <div id="wishes" class="wish-list"></div>
+        </div>
+      </section>
+    </main>
+    <script src="/host.js" type="module"></script>
+  </body>
+</html>

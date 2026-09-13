@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>A birthday wish for Katarina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <div class="brand-row">
+          <div class="brand">
+            <img src="/mark.svg" alt="" />
+            <div class="brand-copy">
+              <span class="brand-title" id="header-title">Welcome</span>
+              <span class="brand-kicker" id="header-kicker" data-i18n="kicker">Birthday video greeting</span>
+            </div>
+          </div>
+        </div>
+        <div class="progress" id="progress" aria-hidden="true">
+          <span data-step="1"></span>
+          <span data-step="2"></span>
+          <span data-step="3"></span>
+          <span data-step="4"></span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="step-invalid" class="stack hidden">
+        <h1 data-i18n="invalidTitle">This link is not valid</h1>
+        <p class="lede" data-i18n="invalidBody">Ask for a new birthday-wish link and try again.</p>
+      </section>
+
+      <section id="step-1" class="stack-lg hidden">
+        <div class="card tint center stack">
+          <span class="glow a"></span>
+          <span class="glow b"></span>
+          <span class="chip gold">
+            <span class="material-symbols-outlined icon-fill" style="font-size: 15px">auto_awesome</span>
+            <span data-i18n="milestone">Milestone birthday</span>
+            <span class="material-symbols-outlined icon-fill" style="font-size: 15px">auto_awesome</span>
+          </span>
+          <h1 data-i18n="katarina50">Katarina turns 50!</h1>
+          <p class="lede" data-i18n="celebrate">Let’s celebrate her golden milestone together.</p>
+          <div class="ornament">
+            <span class="material-symbols-outlined">celebration</span>
+            <span class="dot"></span>
+            <span class="material-symbols-outlined" style="color: var(--secondary)">favorite</span>
+            <span class="dot"></span>
+            <span class="material-symbols-outlined">star</span>
+          </div>
+        </div>
+
+        <div class="card stack">
+          <h2 class="center" data-i18n="secretGift">A secret gift made of love</h2>
+          <p class="lede center" data-i18n="doNowOrLater">
+            Do this now, or save this link and open it somewhere that fits for the best wishes.
+          </p>
+          <div class="pills">
+            <span class="pill">
+              <span class="material-symbols-outlined" style="font-size: 16px">timer</span>
+              <span data-i18n="pillSeconds">Keep it to ~10 seconds</span>
+            </span>
+            <span class="pill">
+              <span class="material-symbols-outlined" style="font-size: 16px">wb_sunny</span>
+              <span data-i18n="pillLight">Good natural light</span>
+            </span>
+            <span class="pill">
+              <span class="material-symbols-outlined" style="font-size: 16px">sentiment_satisfied</span>
+              <span data-i18n="pillToast">A toast, memory, or wish</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="stack">
+          <button id="do-now" class="btn btn-primary" type="button">
+            <span class="material-symbols-outlined icon-fill">videocam</span>
+            <span data-i18n="recordNow">Record my 10s wish now</span>
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </button>
+          <p class="muted center" data-i18n="noDownload">No app download required · Takes less than 1 minute</p>
+        </div>
+
+        <div class="card low stack">
+          <div class="brand">
+            <span class="icon-circle coral">
+              <span class="material-symbols-outlined">schedule</span>
+            </span>
+            <div>
+              <h2 data-i18n="saveLater">Save link &amp; record later</h2>
+              <p class="muted" data-i18n="saveLaterBody">Find good lighting, a quiet spot, or your favorite toast location.</p>
+            </div>
+          </div>
+          <button id="copy-link" class="btn btn-secondary btn-compact" type="button">
+            <span class="material-symbols-outlined">content_copy</span>
+            <span id="copy-link-label" data-i18n="copyLink">Copy link</span>
+          </button>
+          <p id="saved" class="ok-text hidden" data-i18n="saved">Link copied. Open it when you are ready.</p>
+        </div>
+
+        <div class="tip green">
+          <span class="icon-circle solid-green">
+            <span class="material-symbols-outlined">info</span>
+          </span>
+          <div>
+            <strong data-i18n="expectTitle">What to expect in the next step</strong>
+            <p class="muted" data-i18n="expectBody">
+              A 10-second recording prompt with a live camera preview, then a chance to retake before sending.
+            </p>
+          </div>
+        </div>
+
+        <p class="footer-note">
+          <span class="material-symbols-outlined" style="font-size: 18px; color: var(--secondary)">wine_bar</span>
+          <span data-i18n="organized">Organized with care by Katarina’s family</span>
+        </p>
+      </section>
+
+      <section id="step-2" class="stack-lg hidden">
+        <div>
+          <span class="chip">
+            <span class="material-symbols-outlined icon-fill" style="font-size: 16px; color: var(--primary)">stars</span>
+            <span data-i18n="step2chip">Katarina @ 50 · Step 2 of 3</span>
+          </span>
+          <h1 data-i18n="getReady">Get ready to record</h1>
+          <p class="lede" data-i18n="getReadyLede">A quick 10-second wish for Katarina’s surprise film.</p>
+        </div>
+
+        <div class="bento">
+          <div class="bento-item">
+            <span class="icon-circle gold">
+              <span class="material-symbols-outlined">timer_10</span>
+            </span>
+            <div>
+              <h2 data-i18n="clipTitle">10-second quick clip</h2>
+              <p class="muted" data-i18n="clipBody">Short and sweet. Sing a line, raise a glass, share a memory, or shout congratulations.</p>
+            </div>
+          </div>
+          <div class="bento-item">
+            <span class="icon-circle green">
+              <span class="material-symbols-outlined">videocam</span>
+            </span>
+            <div>
+              <h2 data-i18n="previewTitle">Sound &amp; picture preview</h2>
+              <p class="muted" data-i18n="previewBody">Next tap opens a live mirror. You’ll see how you look and sound before recording starts.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card tint stack">
+          <div class="brand-row">
+            <strong data-i18n="deviceReady">Device readiness</strong>
+          </div>
+          <div class="check-row">
+            <div class="brand">
+              <span class="icon-circle">
+                <span class="material-symbols-outlined">mic</span>
+              </span>
+              <div>
+                <strong data-i18n="microphone">Microphone</strong>
+                <p class="muted" data-i18n="micNext">Requested in the next step</p>
+              </div>
+            </div>
+          </div>
+          <div class="check-row">
+            <div class="brand">
+              <span class="icon-circle">
+                <span class="material-symbols-outlined">photo_camera_front</span>
+              </span>
+              <div>
+                <strong data-i18n="camera">Camera</strong>
+                <p class="muted" data-i18n="selfieCam">Front selfie camera</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip">
+          <span class="icon-circle solid-gold">
+            <span class="material-symbols-outlined">lightbulb</span>
+          </span>
+          <p>
+            <strong data-i18n="goldenRule">Golden rule:</strong><span data-i18n="goldenRuleBody"> Hold the phone at eye level, face a soft light or window, and don’t forget that smile for Katarina.</span>
+          </p>
+        </div>
+
+        <button id="ready" class="btn btn-primary" type="button">
+          <span class="material-symbols-outlined">videocam</span>
+          <span data-i18n="openCamera">Open camera &amp; check sound</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </section>
+
+      <section id="step-3" class="stack-lg hidden">
+        <div class="card low brand">
+          <span class="icon-circle gold">
+            <span class="material-symbols-outlined">cake</span>
+          </span>
+          <div>
+            <p class="brand-kicker" data-i18n="step3kicker">Step 3 of 3</p>
+            <h2 data-i18n="tribute">Tribute to Katarina @ 50</h2>
+          </div>
+        </div>
+
+        <div class="preview">
+          <video id="live" class="live" autoplay muted playsinline></video>
+          <div class="preview-scrim"></div>
+          <div class="corners" aria-hidden="true">
+            <svg class="tl" fill="none" viewBox="0 0 40 40"><path d="M4 28V12C4 7.58 7.58 4 12 4H28" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"/><circle cx="8" cy="8" fill="currentColor" r="2.5"/></svg>
+            <svg class="tr" fill="none" viewBox="0 0 40 40"><path d="M36 28V12C36 7.58 32.42 4 28 4H12" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"/><circle cx="32" cy="8" fill="currentColor" r="2.5"/></svg>
+            <svg class="bl" fill="none" viewBox="0 0 40 40"><path d="M4 12V28C4 32.42 7.58 36 12 36H28" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"/><circle cx="8" cy="32" fill="currentColor" r="2.5"/></svg>
+            <svg class="br" fill="none" viewBox="0 0 40 40"><path d="M36 12V28C36 32.42 32.42 36 28 36H12" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"/><circle cx="32" cy="32" fill="currentColor" r="2.5"/></svg>
+          </div>
+          <div id="rec-badge" class="countdown hidden">10</div>
+          <div class="preview-top">
+            <span class="vf-pill"><span class="ping"></span> <span data-i18n="durationPill">10s max duration</span></span>
+            <span class="mono">
+              <span class="material-symbols-outlined" style="font-size: 12px">star</span>
+              K · 50
+              <span class="material-symbols-outlined" style="font-size: 12px">star</span>
+            </span>
+          </div>
+          <div id="count-overlay" class="count-overlay hidden">
+            <span id="count-num">3</span>
+            <p data-i18n="getReadyCount">Get ready</p>
+          </div>
+          <div class="preview-bottom">
+            <div class="eq-card">
+              <div class="eq-meta">
+                <span><span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle">mic</span> <span data-i18n="cameraSound">Camera + sound</span></span>
+                <span class="ok" data-i18n="live">Live</span>
+              </div>
+              <div class="eq" id="eq" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <span id="level" class="hidden"></span>
+            </div>
+          </div>
+        </div>
+
+        <p id="cam-error" class="error hidden"></p>
+        <button id="start" class="btn btn-primary" type="button">
+          <span class="rec-dot"></span>
+          <span id="start-label" data-i18n="startRecord">Start 10-second recording</span>
+        </button>
+        <button id="retry-cam" class="btn btn-secondary hidden" type="button" data-i18n="retryCam">Try camera again</button>
+        <p class="muted center" data-i18n="recordHint">A 3-second countdown runs first. Then recording lasts 10 seconds. You can retake as many times as you like.</p>
+      </section>
+
+      <section id="step-preview" class="stack-lg hidden">
+        <div class="card low brand">
+          <span class="icon-circle gold">
+            <span class="material-symbols-outlined">verified</span>
+          </span>
+          <div>
+            <strong data-i18n="captured">Tribute take captured</strong>
+            <p class="muted" data-i18n="capturedBody">Review before adding it to Katarina’s montage.</p>
+          </div>
+        </div>
+
+        <div class="preview">
+          <video id="playback" controls playsinline></video>
+        </div>
+
+        <div class="card stack">
+          <div class="brand">
+            <span class="material-symbols-outlined" style="color: var(--primary)">edit_note</span>
+            <h2 data-i18n="signGreeting">Sign your greeting</h2>
+          </div>
+          <label class="field">
+            <span class="field-label">
+              <span data-i18n="yourName">Your name / nickname</span>
+              <em data-i18n="required">Required</em>
+            </span>
+            <input id="guest-name" type="text" maxlength="80" data-i18n-placeholder="namePlaceholder" placeholder="e.g. Henrik &amp; Sofia or Auntie Clara" autocomplete="name" />
+          </label>
+          <label class="field">
+            <span class="field-label">
+              <span data-i18n="noteLabel">A short written note or memory</span>
+              <span class="muted" data-i18n="optional">Optional</span>
+            </span>
+            <textarea id="guest-note" maxlength="200" rows="3" data-i18n-placeholder="notePlaceholder" placeholder="Share a sweet memory, inside joke, or private toast for Katarina..."></textarea>
+            <span class="field-meta">
+              <span data-i18n="noteMeta">Included with the video in the host vault</span>
+              <span id="char-count">0/200</span>
+            </span>
+          </label>
+          <div class="stack">
+            <span class="brand-kicker" data-i18n="sparks">Quick note sparks</span>
+            <div class="pills" id="sparks">
+              <button class="pill spark" type="button" data-i18n="spark50" data-spark-key="spark50text">Cheers to 50</button>
+              <button class="pill spark" type="button" data-i18n="sparkNext" data-spark-key="sparkNextText">Next 50 years</button>
+              <button class="pill spark" type="button" data-i18n="sparkHb" data-spark-key="sparkHbText">Happy birthday</button>
+            </div>
+          </div>
+        </div>
+
+        <button id="send" class="btn btn-primary" type="button">
+          <span class="material-symbols-outlined icon-fill">celebration</span>
+          <span id="send-label" data-i18n="sendWish">Send wish to surprise film</span>
+        </button>
+        <button id="again" class="btn btn-coral" type="button">
+          <span class="material-symbols-outlined">replay</span>
+          <span data-i18n="recordAgain">Record again</span>
+        </button>
+        <p id="send-error" class="error hidden"></p>
+      </section>
+
+      <section id="step-thanks" class="stack-lg hidden">
+        <div class="card tint center stack">
+          <span class="glow a"></span>
+          <span class="icon-circle solid-gold" style="margin: 0 auto; width: 3.2rem; height: 3.2rem">
+            <span class="material-symbols-outlined icon-fill">auto_awesome</span>
+          </span>
+          <h1 data-i18n="thanks">Thank you</h1>
+          <p class="lede" id="thanks-copy" data-i18n="thanksBody">Your birthday wish for Katarina is on its way.</p>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast hidden">
+      <span class="material-symbols-outlined" style="color: var(--primary-fixed)">check</span>
+      <span id="toast-text">Copied.</span>
+    </div>
+    <script src="/wish.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Katarina’s 50th · Constellation of wishes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="memory-body">
+    <section id="memory-invalid" class="memory-fallback hidden">
+      <img src="/mark.svg" alt="" />
+      <h1 data-i18n="memoryInvalid">This memory link is not valid</h1>
+      <p class="lede" data-i18n="memoryInvalidBody">Ask for the jubilee globe link and try again.</p>
+    </section>
+
+    <div id="memory-app" class="memory-app hidden">
+      <div id="globe" class="globe memory-globe"></div>
+
+      <header class="memory-top">
+        <div class="memory-title-card">
+          <span class="chip gold">
+            <span class="material-symbols-outlined icon-fill" style="font-size: 15px">auto_awesome</span>
+            <span data-i18n="memoryChip">A lasting memory</span>
+          </span>
+          <h1 data-i18n="memoryHeadline">Katarina’s jubilee — constellation of wishes</h1>
+          <p class="muted" id="memory-count">Drag to orbit. Click a star to play a 10-second toast.</p>
+        </div>
+        <div class="globe-hud memory-hud">
+          <button id="globe-spin" class="btn btn-secondary btn-compact" type="button" data-i18n="spinOn">Auto-spin on</button>
+          <button id="globe-in" class="btn btn-secondary btn-compact" type="button" data-i18n="zoomIn">Zoom in</button>
+          <button id="globe-out" class="btn btn-secondary btn-compact" type="button" data-i18n="zoomOut">Zoom out</button>
+          <button id="globe-reset" class="btn btn-secondary btn-compact" type="button" data-i18n="reset">Reset</button>
+          <button id="copy-memory" class="btn btn-secondary btn-compact" type="button" data-i18n="copyThisLink">Copy this link</button>
+        </div>
+      </header>
+
+      <div id="globe-hover" class="globe-hover hidden">
+        <strong data-name></strong>
+        <p data-note></p>
+      </div>
+
+      <p class="memory-legend" data-i18n="memoryLegend">Drag to rotate · scroll to zoom · click a wish to watch</p>
+    </div>
+
+    <div id="wish-modal" class="wish-modal hidden">
+      <div class="wish-modal-card stack">
+        <div class="brand-row">
+          <div>
+            <h2 id="modal-name">Wish</h2>
+            <p id="modal-note" class="muted"></p>
+          </div>
+          <button id="modal-close" class="icon-btn" type="button" aria-label="Close">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <video id="modal-video" controls playsinline></video>
+      </div>
+    </div>
+    <script src="/memory.js" type="module"></script>
+  </body>
+</html>
