@@ -114,6 +114,10 @@ const app = express();
 app.use(express.json());
 app.use(express.static(PUBLIC_DIR));
 app.use("/uploads", express.static(UPLOAD_DIR, { fallthrough: false }));
+app.get("/vendor/three.module.js", (_req, res) => {
+  res.type("application/javascript");
+  res.sendFile(path.join(__dirname, "node_modules/three/build/three.module.js"));
+});
 
 app.get("/w/:id", (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "wish.html"));
