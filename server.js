@@ -194,10 +194,18 @@ app.get("/login", (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "login.html"));
 });
 
+function normalizePassword(value) {
+  return String(value || "")
+    .trim()
+    .replaceAll("\u2026", "...");
+}
+
 app.post("/login", (req, res) => {
-  const user = String(req.body?.username || "");
-  const pass = String(req.body?.password || "");
-  if (!ADMIN_USER || !ADMIN_PASSWORD || !safeEqual(user, ADMIN_USER) || !safeEqual(pass, ADMIN_PASSWORD)) {
+  const user = String(req.body?.username || "").trim();
+  const pass = normalizePassword(req.body?.password);
+  const expectedUser = String(ADMIN_USER).trim();
+  const expectedPass = normalizePassword(ADMIN_PASSWORD);
+  if (!expectedUser || !expectedPass || !safeEqual(user, expectedUser) || !safeEqual(pass, expectedPass)) {
     return res.redirect("/login?error=1");
   }
   res.setHeader("Set-Cookie", cookieHeader());
