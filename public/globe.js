@@ -1,8 +1,5 @@
 import * as THREE from "/vendor/three.module.js";
 
-const GOLD = 0xd4af37;
-const CREAM = 0xfff3e0;
-
 function fibonacciSphere(count, radius) {
   const points = [];
   if (count === 1) {
@@ -152,61 +149,80 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
   renderer.toneMappingExposure = 1.15;
   container.appendChild(renderer.domElement);
 
-  scene.add(new THREE.AmbientLight(0xfff3e0, 1.15));
-  const key = new THREE.DirectionalLight(0xfff0c2, 1.6);
-  key.position.set(180, 220, 240);
-  scene.add(key);
-  const gold = new THREE.PointLight(GOLD, 2.2, 700);
-  scene.add(gold);
+  scene.background = new THREE.Color(0x02040a);
+  scene.add(new THREE.AmbientLight(0x1a2744, 0.55));
+  const sun = new THREE.DirectionalLight(0x88a0c8, 0.35);
+  sun.position.set(-220, 80, 180);
+  scene.add(sun);
 
   const globe = new THREE.Group();
   scene.add(globe);
 
-  const ringMat = new THREE.MeshBasicMaterial({
-    color: GOLD,
-    side: THREE.DoubleSide,
-    transparent: true,
-    opacity: 0.28,
+  const earthMat = new THREE.MeshStandardMaterial({
+    color: 0x070b14,
+    emissive: 0xffffff,
+    emissiveIntensity: 1.55,
+    roughness: 1,
+    metalness: 0,
   });
-  const ring = new THREE.Mesh(new THREE.RingGeometry(168, 170, 96), ringMat);
-  ring.rotation.x = Math.PI / 2;
-  globe.add(ring);
-  const ring2 = ring.clone();
-  ring2.rotation.y = Math.PI / 3;
-  globe.add(ring2);
+  const earth = new THREE.Mesh(new THREE.SphereGeometry(128, 64, 64), earthMat);
+  globe.add(earth);
+  new THREE.TextureLoader().load("/earth-night.jpg", (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 8;
+    earthMat.map = tex;
+    earthMat.emissiveMap = tex;
+    earthMat.needsUpdate = true;
+  });
 
   globe.add(
     new THREE.Mesh(
-      new THREE.SphereGeometry(36, 28, 28),
-      new THREE.MeshBasicMaterial({ color: CREAM, wireframe: true, transparent: true, opacity: 0.16, depthWrite: false }),
+      new THREE.SphereGeometry(136, 48, 48),
+      new THREE.MeshBasicMaterial({
+        color: 0x3d6bff,
+        transparent: true,
+        opacity: 0.16,
+        side: THREE.BackSide,
+        depthWrite: false,
+      }),
     ),
   );
   globe.add(
     new THREE.Mesh(
-      new THREE.SphereGeometry(132, 48, 48),
+      new THREE.SphereGeometry(130, 48, 48),
       new THREE.MeshBasicMaterial({
-        color: GOLD,
-        wireframe: true,
+        color: 0x6ea8ff,
         transparent: true,
-        opacity: 0.12,
+        opacity: 0.07,
         depthWrite: false,
       }),
     ),
   );
 
-  const starCount = 280;
+  const starCount = 1400;
   const starPos = new Float32Array(starCount * 3);
+  const starCol = new Float32Array(starCount * 3);
   for (let i = 0; i < starCount; i++) {
-    const r = 190 + Math.random() * 110;
+    const r = 520 + Math.random() * 380;
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(Math.random() * 2 - 1);
     starPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
     starPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
     starPos[i * 3 + 2] = r * Math.cos(phi);
+    const tint = 0.75 + Math.random() * 0.25;
+    starCol[i * 3] = tint;
+    starCol[i * 3 + 1] = tint;
+    starCol[i * 3 + 2] = 0.9 + Math.random() * 0.1;
   }
   const stars = new THREE.BufferGeometry();
   stars.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
-  globe.add(new THREE.Points(stars, new THREE.PointsMaterial({ color: GOLD, size: 2.4, transparent: true, opacity: 0.7 })));
+  stars.setAttribute("color", new THREE.BufferAttribute(starCol, 3));
+  scene.add(
+    new THREE.Points(
+      stars,
+      new THREE.PointsMaterial({ vertexColors: true, size: 1.8, transparent: true, opacity: 0.9, depthWrite: false }),
+    ),
+  );
 
   const pins = new THREE.Group();
   globe.add(pins);
