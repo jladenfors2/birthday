@@ -26,6 +26,7 @@
         <p class="muted">Värdsidan är lösenordsskyddad. Gästlänken är oförändrad.</p>
         <p id="login-error" class="error hidden">Fel användarnamn eller lösenord.</p>
         <form class="stack" method="post" action="/login">
+          <input type="hidden" name="next" id="next-field" value="/" />
           <label class="field">
             <span class="field-label">Användarnamn</span>
             <input name="username" type="text" autocomplete="username" required />
@@ -39,8 +40,13 @@
       </section>
     </main>
     <script>
-      if (new URLSearchParams(location.search).get("error")) {
+      const params = new URLSearchParams(location.search);
+      if (params.get("error")) {
         document.querySelector("#login-error").classList.remove("hidden");
+      }
+      const next = params.get("next");
+      if (next && next.startsWith("/") && !next.startsWith("//")) {
+        document.querySelector("#next-field").value = next;
       }
     </script>
   </body>
