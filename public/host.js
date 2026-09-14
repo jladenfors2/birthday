@@ -23,15 +23,6 @@ async function api(url, options) {
   return data;
 }
 
-const shareWhatsapp = document.querySelector("#share-whatsapp");
-const shareEmail = document.querySelector("#share-email");
-
-function setShareLinks(url) {
-  const message = t(linkLang, "shareMessage", { url });
-  shareWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
-  shareEmail.href = `mailto:?subject=${encodeURIComponent(t(linkLang, "shareSubject"))}&body=${encodeURIComponent(message)}`;
-}
-
 function syncLangButtons() {
   for (const button of document.querySelectorAll(".lang-toggle [data-lang]")) {
     button.classList.toggle("on", button.dataset.lang === linkLang);
@@ -47,7 +38,6 @@ function applyHostLang() {
 function refreshUrls(session) {
   shareInput.value = withLang(session.shareUrl, linkLang);
   memoryInput.value = withLang(session.memoryUrl, linkLang);
-  setShareLinks(shareInput.value);
 }
 
 async function loadSession(id) {
@@ -82,7 +72,6 @@ for (const button of document.querySelectorAll(".lang-toggle [data-lang]")) {
     if (shareInput.value) {
       shareInput.value = withLang(shareInput.value, linkLang);
       memoryInput.value = withLang(memoryInput.value, linkLang);
-      setShareLinks(shareInput.value);
     }
     if (currentId) loadSession(currentId).catch(() => {});
   });
@@ -109,10 +98,6 @@ copyButton.addEventListener("click", async () => {
     document.execCommand("copy");
   }
   copyStatus.classList.remove("hidden");
-});
-
-document.querySelector("#open-link").addEventListener("click", () => {
-  if (shareInput.value) window.open(shareInput.value, "_blank", "noopener,noreferrer");
 });
 
 document.querySelector("#copy-memory").addEventListener("click", async () => {

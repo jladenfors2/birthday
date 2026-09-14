@@ -543,6 +543,10 @@ a.btn {
   grid-template-columns: 1fr 1fr;
 }
 
+.link-box > button:last-of-type:nth-of-type(1) {
+  grid-column: 1 / -1;
+}
+
 .link-box input {
   grid-column: 1 / -1;
   min-width: 0;
