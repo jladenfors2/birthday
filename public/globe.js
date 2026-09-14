@@ -19,36 +19,6 @@ function fibonacciSphere(count, radius) {
   return points;
 }
 
-function badgeTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 512;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#fffdfa";
-  ctx.beginPath();
-  ctx.arc(256, 256, 240, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.lineWidth = 14;
-  ctx.strokeStyle = "#d4af37";
-  ctx.stroke();
-  ctx.lineWidth = 3;
-  ctx.setLineDash([12, 10]);
-  ctx.strokeStyle = "#e5c158";
-  ctx.beginPath();
-  ctx.arc(256, 256, 210, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = "#2b2421";
-  ctx.font = "600 120px 'Playfair Display', serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("K 50", 256, 230);
-  ctx.fillStyle = "#d4af37";
-  ctx.font = "600 28px 'Plus Jakarta Sans', sans-serif";
-  ctx.fillText("GOLDEN JUBILEE", 256, 318);
-  return new THREE.CanvasTexture(canvas);
-}
-
 const PIN_W = 384;
 const PIN_H = 480;
 
@@ -200,13 +170,6 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
     ),
   );
 
-  const badge = new THREE.Mesh(
-    new THREE.PlaneGeometry(78, 78),
-    new THREE.MeshBasicMaterial({ map: badgeTexture(), transparent: true, side: THREE.DoubleSide, depthTest: false }),
-  );
-  badge.renderOrder = 2;
-  globe.add(badge);
-
   const starCount = 280;
   const starPos = new Float32Array(starCount * 3);
   for (let i = 0; i < starCount; i++) {
@@ -347,7 +310,6 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
   function tick() {
     raf = requestAnimationFrame(tick);
     if (spinning && !dragging) globe.rotateOnWorldAxis(worldUp, 0.0022);
-    badge.lookAt(camera.position);
     pins.traverse((obj) => {
       if (obj.userData.billboard) obj.lookAt(camera.position);
       if (obj.userData.depthScale) {
