@@ -26,6 +26,9 @@ export const strings = {
     globeHint:
       "After the wishes are collected, open this page. It is a lasting constellation — save the link.",
     openGlobe: "Open globe",
+    studioNav: "Invite link",
+    globeNav: "Globe",
+    logOut: "Log out",
     galleryNav: "All videos",
     galleryTitle: "All received films",
     galleryKicker: "Private board",
@@ -169,6 +172,9 @@ export const strings = {
     globeHint:
       "När hälsningarna är inne, öppna den här sidan. Det är ett minne som består — spara länken.",
     openGlobe: "Öppna globen",
+    studioNav: "Gästlänk",
+    globeNav: "Glob",
+    logOut: "Logga ut",
     galleryNav: "Alla filmer",
     galleryTitle: "Alla mottagna filmer",
     galleryKicker: "Privat anslagstavla",

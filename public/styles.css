@@ -140,6 +140,49 @@ body::after {
   align-items: center;
   gap: 0.7rem;
   min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-nav-wrap {
+  width: min(72rem, calc(100% - 2 * var(--margin-mobile)));
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.2rem;
+}
+
+.nav-link {
+  appearance: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--on-surface-variant);
+  text-decoration: none;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.nav-link:hover,
+.nav-link.is-active {
+  color: var(--on-primary-container);
+  background: color-mix(in srgb, var(--primary-container) 28%, transparent);
+}
+
+.nav-link-btn {
+  min-height: 0;
+  width: auto;
 }
 
 .brand img {
@@ -1175,9 +1218,13 @@ a.btn {
     line-height: 40px;
   }
 
-  .site-header-inner,
-  main {
+  .site-header-inner:not(.site-nav-wrap),
+  main:not(.gallery-main) {
     width: min(42rem, calc(100% - 4rem));
+  }
+
+  .site-nav-wrap {
+    width: min(72rem, calc(100% - 4rem));
   }
 }
 

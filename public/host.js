@@ -1,4 +1,5 @@
 import { applyI18n, normalizeLang, t, withLang } from "./i18n.js";
+import { bindGlobeNav } from "./nav.js";
 
 const LANG_KEY = "birthday-link-lang";
 let linkLang = normalizeLang(localStorage.getItem(LANG_KEY) || "sv");
@@ -8,8 +9,6 @@ const active = document.querySelector("#active");
 const shareInput = document.querySelector("#share-url");
 const copyButton = document.querySelector("#copy");
 const copyStatus = document.querySelector("#copy-status");
-const memoryInput = document.querySelector("#memory-url");
-const memoryCopied = document.querySelector("#memory-copied");
 
 const STORAGE_KEY = "birthday-active-session";
 
@@ -37,7 +36,8 @@ function applyHostLang() {
 
 function refreshUrls(session) {
   shareInput.value = withLang(session.shareUrl, linkLang);
-  memoryInput.value = withLang(session.memoryUrl, linkLang);
+  const globe = document.querySelector("#nav-globe");
+  if (globe && session.memoryUrl) globe.href = withLang(session.memoryUrl, linkLang);
 }
 
 async function loadSession(id) {
@@ -71,8 +71,8 @@ for (const button of document.querySelectorAll(".lang-toggle [data-lang]")) {
     applyHostLang();
     if (shareInput.value) {
       shareInput.value = withLang(shareInput.value, linkLang);
-      memoryInput.value = withLang(memoryInput.value, linkLang);
     }
+    bindGlobeNav();
     if (currentId) loadSession(currentId).catch(() => {});
   });
 }
@@ -98,20 +98,6 @@ copyButton.addEventListener("click", async () => {
     document.execCommand("copy");
   }
   copyStatus.classList.remove("hidden");
-});
-
-document.querySelector("#copy-memory").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(memoryInput.value);
-  } catch {
-    memoryInput.select();
-    document.execCommand("copy");
-  }
-  memoryCopied.classList.remove("hidden");
-});
-
-document.querySelector("#open-memory").addEventListener("click", () => {
-  if (memoryInput.value) window.open(memoryInput.value, "_blank", "noopener,noreferrer");
 });
 
 ensureCampaign().catch(() => {});

@@ -1,8 +1,10 @@
 import { applyI18n, normalizeLang, t } from "./i18n.js";
+import { bindGlobeNav } from "./nav.js";
 
 const lang = normalizeLang(localStorage.getItem("birthday-link-lang") || "sv");
 applyI18n(lang);
 document.title = t(lang, "galleryTitle");
+bindGlobeNav();
 
 const board = document.querySelector("#board");
 const empty = document.querySelector("#empty");
