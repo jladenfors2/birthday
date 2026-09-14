@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Alla mottagna filmer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="gallery-body">
+    <header class="site-header">
+      <div class="site-header-inner gallery-header">
+        <div class="brand-row">
+          <div class="brand">
+            <img src="/mark.svg" alt="" />
+            <div class="brand-copy">
+              <span class="brand-title" data-i18n="galleryTitle">Alla mottagna filmer</span>
+              <span class="brand-kicker" data-i18n="galleryKicker">Privat anslagstavla</span>
+            </div>
+          </div>
+          <div class="row">
+            <a class="btn btn-secondary btn-compact" href="/" data-i18n="backToHost">Tillbaka till värdsidan</a>
+            <form action="/logout" method="post">
+              <button class="btn btn-secondary btn-compact" type="submit">Logga ut</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="gallery-main">
+      <p class="lede gallery-lede" data-i18n="galleryLede">
+        Varje 10-sekundershälsning, staplad som pins. Tryck på en film för att spela upp den.
+      </p>
+      <p id="empty" class="muted hidden" data-i18n="galleryEmpty">
+        Inga filmer än. De dyker upp här så fort någon skickar en hälsning.
+      </p>
+      <div id="board" class="pin-board"></div>
+    </main>
+
+    <div id="lightbox" class="lightbox hidden">
+      <div class="lightbox-card">
+        <button id="lightbox-close" class="icon-btn" type="button" data-i18n-aria="galleryClose" aria-label="Stäng">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+        <video id="lightbox-video" controls playsinline></video>
+        <h2 id="lightbox-name"></h2>
+        <p id="lightbox-note" class="muted"></p>
+      </div>
+    </div>
+    <script src="/gallery.js" type="module"></script>
+  </body>
+</html>

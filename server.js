@@ -169,9 +169,14 @@ function cookieHeader(clear = false) {
   return `k50_admin=${encodeURIComponent(sessionToken())}; HttpOnly; Path=/; SameSite=Lax; Max-Age=2592000${secure}`;
 }
 
+function safeNext(value) {
+  const next = String(value || "/");
+  return next.startsWith("/") && !next.startsWith("//") ? next : "/";
+}
+
 function requireAdminPage(req, res, next) {
   if (isAuthed(req)) return next();
-  res.redirect("/login");
+  res.redirect(`/login?next=${encodeURIComponent(req.originalUrl || "/")}`);
 }
 
 function requireAdminApi(req, res, next) {
@@ -190,7 +195,7 @@ app.get("/vendor/three.module.js", (_req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  if (isAuthed(req)) return res.redirect("/");
+  if (isAuthed(req)) return res.redirect(safeNext(req.query.next));
   res.sendFile(path.join(PUBLIC_DIR, "login.html"));
 });
 
@@ -209,7 +214,7 @@ app.post("/login", (req, res) => {
     return res.redirect("/login?error=1");
   }
   res.setHeader("Set-Cookie", cookieHeader());
-  res.redirect("/");
+  res.redirect(safeNext(req.body?.next));
 });
 
 app.post("/logout", (_req, res) => {
@@ -219,6 +224,10 @@ app.post("/logout", (_req, res) => {
 
 app.get("/", requireAdminPage, (_req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "index.html"));
+});
+
+app.get("/gallery", requireAdminPage, (_req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "gallery.html"));
 });
 
 app.get("/w/:id", (req, res) => {
