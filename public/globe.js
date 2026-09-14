@@ -224,6 +224,8 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
   const pins = new THREE.Group();
   globe.add(pins);
   const worldPos = new THREE.Vector3();
+  const worldUp = new THREE.Vector3(0, 1, 0);
+  const worldRight = new THREE.Vector3(1, 0, 0);
 
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
@@ -314,8 +316,8 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
       const dx = event.clientX - lastX;
       const dy = event.clientY - lastY;
       if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
-      globe.rotation.y += dx * 0.005;
-      globe.rotation.x = Math.max(-0.7, Math.min(0.7, globe.rotation.x + dy * 0.004));
+      globe.rotateOnWorldAxis(worldUp, dx * 0.006);
+      globe.rotateOnWorldAxis(worldRight, dy * 0.006);
       lastX = event.clientX;
       lastY = event.clientY;
       return;
@@ -344,7 +346,7 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
 
   function tick() {
     raf = requestAnimationFrame(tick);
-    if (spinning && !dragging) globe.rotation.y += 0.0022;
+    if (spinning && !dragging) globe.rotateOnWorldAxis(worldUp, 0.0022);
     badge.lookAt(camera.position);
     pins.traverse((obj) => {
       if (obj.userData.billboard) obj.lookAt(camera.position);
@@ -374,6 +376,7 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
     },
     reset() {
       globe.rotation.set(0, 0, 0);
+      globe.quaternion.identity();
       camera.position.set(0, 18, 360);
     },
     zoom(delta) {
