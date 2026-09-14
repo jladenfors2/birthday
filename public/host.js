@@ -8,15 +8,12 @@ const active = document.querySelector("#active");
 const shareInput = document.querySelector("#share-url");
 const copyButton = document.querySelector("#copy");
 const copyStatus = document.querySelector("#copy-status");
-const empty = document.querySelector("#empty");
-const wishesEl = document.querySelector("#wishes");
 const memoryInput = document.querySelector("#memory-url");
 const memoryCopied = document.querySelector("#memory-copied");
 
 const STORAGE_KEY = "birthday-active-session";
 
 let currentId = localStorage.getItem(STORAGE_KEY);
-let pollTimer = null;
 
 async function api(url, options) {
   const res = await fetch(url, options);
@@ -26,64 +23,8 @@ async function api(url, options) {
   return data;
 }
 
-const wishCount = document.querySelector("#wish-count");
 const shareWhatsapp = document.querySelector("#share-whatsapp");
 const shareEmail = document.querySelector("#share-email");
-
-function renderWishes(session) {
-  wishesEl.replaceChildren();
-  const wishes = session.wishes || [];
-  empty.classList.toggle("hidden", wishes.length > 0);
-  wishCount.classList.toggle("hidden", wishes.length === 0);
-  wishCount.textContent =
-    wishes.length === 1 ? t(linkLang, "wishCountOne") : t(linkLang, "wishCountMany", { n: wishes.length });
-
-  for (const wish of [...wishes].reverse()) {
-    const card = document.createElement("article");
-    card.className = "card stack";
-    const head = document.createElement("div");
-    head.className = "wish-head";
-    const titleRow = document.createElement("div");
-    titleRow.className = "brand-row";
-    const name = document.createElement("strong");
-    name.textContent = wish.name || t(linkLang, "anonymous");
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "btn btn-coral btn-compact";
-    remove.textContent = t(linkLang, "delete");
-    remove.addEventListener("click", () => deleteWish(wish, remove));
-    titleRow.append(name, remove);
-    const when = document.createElement("p");
-    when.className = "muted";
-    when.textContent = new Date(wish.createdAt).toLocaleString(linkLang === "sv" ? "sv-SE" : "en-GB");
-    head.append(titleRow, when);
-    if (wish.note) {
-      const note = document.createElement("p");
-      note.className = "lede";
-      note.textContent = wish.note;
-      head.append(note);
-    }
-    const video = document.createElement("video");
-    video.controls = true;
-    video.playsInline = true;
-    video.src = wish.url;
-    card.append(head, video);
-    wishesEl.append(card);
-  }
-}
-
-async function deleteWish(wish, button) {
-  const who = wish.name || t(linkLang, "anonymous");
-  if (!window.confirm(t(linkLang, "deleteConfirm", { name: who }))) return;
-  button.disabled = true;
-  try {
-    await api(`/api/sessions/${currentId}/wishes/${wish.id}`, { method: "DELETE" });
-    await loadSession(currentId);
-  } catch (err) {
-    button.disabled = false;
-    alert(err.message);
-  }
-}
 
 function setShareLinks(url) {
   const message = t(linkLang, "shareMessage", { url });
@@ -115,23 +56,7 @@ async function loadSession(id) {
   localStorage.setItem(STORAGE_KEY, session.id);
   refreshUrls(session);
   active.classList.remove("hidden");
-  renderWishes(session);
-  startPolling();
   return session;
-}
-
-function startPolling() {
-  clearInterval(pollTimer);
-  pollTimer = setInterval(async () => {
-    if (!currentId) return;
-    try {
-      const session = await api(`/api/sessions/${currentId}`);
-      renderWishes(session);
-      refreshUrls(session);
-    } catch {
-      clearInterval(pollTimer);
-    }
-  }, 4000);
 }
 
 async function ensureCampaign() {
