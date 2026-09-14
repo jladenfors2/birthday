@@ -34,7 +34,7 @@ function drawPinCanvas(frame, name) {
   ctx.clip();
   ctx.fillStyle = "#1a1410";
   ctx.fillRect(0, 0, PIN_W, PIN_H);
-  if (frame) {
+  if (frame && (frame.videoWidth || frame.width)) {
     const fw = frame.videoWidth || frame.width || PIN_W;
     const fh = frame.videoHeight || frame.height || PIN_H;
     const scale = Math.max(PIN_W / fw, PIN_H / fh);
@@ -92,6 +92,17 @@ function wrapCentered(ctx, text, x, y, maxWidth, lineHeight) {
   shown.forEach((row, i) => ctx.fillText(row, x, startY + i * lineHeight));
 }
 
+function snapshotVideo(video) {
+  const fw = video.videoWidth;
+  const fh = video.videoHeight;
+  if (!fw || !fh) return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = fw;
+  canvas.height = fh;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  return canvas;
+}
+
 function captureFrame(url) {
   return new Promise((resolve) => {
     const video = document.createElement("video");
@@ -99,26 +110,33 @@ function captureFrame(url) {
     video.playsInline = true;
     video.preload = "auto";
     video.src = url;
-    const done = (frame) => {
+    const finish = (frame) => {
+      video.pause();
       video.removeAttribute("src");
       video.load();
       resolve(frame);
     };
-    const timer = window.setTimeout(() => done(null), 8000);
+    const timer = window.setTimeout(() => finish(null), 8000);
     video.addEventListener("error", () => {
       window.clearTimeout(timer);
-      done(null);
+      finish(null);
     });
     const grab = () => {
       window.clearTimeout(timer);
-      done(video);
+      finish(snapshotVideo(video));
     };
-    video.addEventListener("seeked", grab, { once: true });
-    video.addEventListener("loadeddata", () => {
-      const t = Math.min(0.35, (video.duration || 1) * 0.12);
-      if (Math.abs(video.currentTime - t) < 0.05) grab();
-      else video.currentTime = t;
-    });
+    video
+      .play()
+      .then(() => {
+        video.pause();
+        if (video.videoWidth) grab();
+        else {
+          video.addEventListener("loadeddata", grab, { once: true });
+        }
+      })
+      .catch(() => {
+        video.addEventListener("loadeddata", grab, { once: true });
+      });
   });
 }
 
@@ -160,13 +178,19 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
   globe.add(
     new THREE.Mesh(
       new THREE.SphereGeometry(36, 28, 28),
-      new THREE.MeshBasicMaterial({ color: CREAM, wireframe: true, transparent: true, opacity: 0.16 }),
+      new THREE.MeshBasicMaterial({ color: CREAM, wireframe: true, transparent: true, opacity: 0.16, depthWrite: false }),
     ),
   );
   globe.add(
     new THREE.Mesh(
-      new THREE.SphereGeometry(150, 48, 48),
-      new THREE.MeshBasicMaterial({ color: GOLD, wireframe: true, transparent: true, opacity: 0.07 }),
+      new THREE.SphereGeometry(132, 48, 48),
+      new THREE.MeshBasicMaterial({
+        color: GOLD,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.12,
+        depthWrite: false,
+      }),
     ),
   );
 
@@ -214,11 +238,12 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
     const gen = ++wishGen;
     wishes = next || [];
     pins.clear();
-    const points = fibonacciSphere(wishes.length, 148);
+    const points = fibonacciSphere(wishes.length, 168);
     wishes.forEach((wish, index) => {
       const group = new THREE.Group();
       group.position.copy(points[index]);
       group.userData.depthScale = true;
+      group.renderOrder = 10;
 
       const thumb = new THREE.Mesh(
         new THREE.PlaneGeometry(28, 35),
@@ -226,10 +251,14 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
           map: drawPinCanvas(null, wish.name),
           transparent: true,
           side: THREE.DoubleSide,
+          depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
         }),
       );
       thumb.userData.wish = wish;
       thumb.userData.billboard = true;
+      thumb.renderOrder = 10;
       group.add(thumb);
       pins.add(group);
 
