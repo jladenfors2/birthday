@@ -49,72 +49,107 @@ function badgeTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
-function cardTexture(wish) {
+const PIN_W = 384;
+const PIN_H = 480;
+
+function drawPinCanvas(frame, name) {
   const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 320;
+  canvas.width = PIN_W;
+  canvas.height = PIN_H;
   const ctx = canvas.getContext("2d");
-  const r = 28;
+  const r = 36;
+  ctx.save();
   ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.lineTo(canvas.width - r, 0);
-  ctx.quadraticCurveTo(canvas.width, 0, canvas.width, r);
-  ctx.lineTo(canvas.width, canvas.height - r);
-  ctx.quadraticCurveTo(canvas.width, canvas.height, canvas.width - r, canvas.height);
-  ctx.lineTo(r, canvas.height);
-  ctx.quadraticCurveTo(0, canvas.height, 0, canvas.height - r);
-  ctx.lineTo(0, r);
-  ctx.quadraticCurveTo(0, 0, r, 0);
-  ctx.closePath();
-  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  grad.addColorStop(0, "rgba(255,250,242,0.96)");
-  grad.addColorStop(1, "rgba(250,238,222,0.92)");
-  ctx.fillStyle = grad;
-  ctx.fill();
-  ctx.lineWidth = 8;
-  ctx.strokeStyle = "#d4af37";
-  ctx.stroke();
-  ctx.fillStyle = "#d4af37";
-  ctx.beginPath();
-  ctx.arc(64, 72, 28, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#554300";
-  ctx.font = "700 28px 'Plus Jakarta Sans', sans-serif";
+  ctx.roundRect(0, 0, PIN_W, PIN_H, r);
+  ctx.clip();
+  ctx.fillStyle = "#1a1410";
+  ctx.fillRect(0, 0, PIN_W, PIN_H);
+  if (frame) {
+    const fw = frame.videoWidth || frame.width || PIN_W;
+    const fh = frame.videoHeight || frame.height || PIN_H;
+    const scale = Math.max(PIN_W / fw, PIN_H / fh);
+    const dw = fw * scale;
+    const dh = fh * scale;
+    ctx.drawImage(frame, (PIN_W - dw) / 2, (PIN_H - dh) / 2, dw, dh);
+  } else {
+    ctx.fillStyle = "#d4af37";
+    ctx.font = "700 96px 'Playfair Display', serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText((name || "?").slice(0, 1).toUpperCase(), PIN_W / 2, PIN_H * 0.42);
+  }
+  const fade = ctx.createLinearGradient(0, PIN_H * 0.52, 0, PIN_H);
+  fade.addColorStop(0, "rgba(26,20,16,0)");
+  fade.addColorStop(0.45, "rgba(26,20,16,0.55)");
+  fade.addColorStop(1, "rgba(26,20,16,0.92)");
+  ctx.fillStyle = fade;
+  ctx.fillRect(0, PIN_H * 0.5, PIN_W, PIN_H * 0.5);
+  ctx.fillStyle = "#fffdf8";
+  ctx.font = "700 42px 'Plus Jakarta Sans', sans-serif";
   ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText((wish.name || "?").slice(0, 1).toUpperCase(), 64, 74);
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#211a17";
-  ctx.font = "600 32px 'Playfair Display', serif";
-  ctx.fillText((wish.name || "Friend").slice(0, 22), 110, 64);
-  ctx.fillStyle = "#4d4635";
-  ctx.font = "400 22px 'Plus Jakarta Sans', sans-serif";
-  const note = (wish.note || "A 10-second birthday wish").slice(0, 70);
-  wrapText(ctx, note, 40, 150, 430, 32);
-  ctx.fillStyle = "#735c00";
-  ctx.font = "700 18px 'Plus Jakarta Sans', sans-serif";
-  ctx.fillText("TAP TO PLAY  ·  0:10", 40, 280);
+  ctx.textBaseline = "alphabetic";
+  ctx.shadowColor = "rgba(0,0,0,0.55)";
+  ctx.shadowBlur = 12;
+  const label = (name || "Vän").trim() || "Vän";
+  wrapCentered(ctx, label, PIN_W / 2, PIN_H - 38, PIN_W - 40, 46);
+  ctx.restore();
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = "#d4af37";
+  ctx.beginPath();
+  ctx.roundRect(5, 5, PIN_W - 10, PIN_H - 10, r - 4);
+  ctx.stroke();
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
 }
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+function wrapCentered(ctx, text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
+  const lines = [];
   let line = "";
-  let row = 0;
   for (const word of words) {
     const test = line ? `${line} ${word}` : word;
     if (ctx.measureText(test).width > maxWidth && line) {
-      ctx.fillText(line, x, y + row * lineHeight);
+      lines.push(line);
       line = word;
-      row += 1;
-      if (row >= 3) return;
     } else {
       line = test;
     }
   }
-  if (line) ctx.fillText(line, x, y + row * lineHeight);
+  if (line) lines.push(line);
+  const shown = lines.slice(0, 2);
+  const startY = y - (shown.length - 1) * lineHeight;
+  shown.forEach((row, i) => ctx.fillText(row, x, startY + i * lineHeight));
+}
+
+function captureFrame(url) {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.src = url;
+    const done = (frame) => {
+      video.removeAttribute("src");
+      video.load();
+      resolve(frame);
+    };
+    const timer = window.setTimeout(() => done(null), 8000);
+    video.addEventListener("error", () => {
+      window.clearTimeout(timer);
+      done(null);
+    });
+    const grab = () => {
+      window.clearTimeout(timer);
+      done(video);
+    };
+    video.addEventListener("seeked", grab, { once: true });
+    video.addEventListener("loadeddata", () => {
+      const t = Math.min(0.35, (video.duration || 1) * 0.12);
+      if (Math.abs(video.currentTime - t) < 0.05) grab();
+      else video.currentTime = t;
+    });
+  });
 }
 
 export function createGlobe(container, { hoverEl, onSelect } = {}) {
@@ -188,6 +223,7 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
 
   const pins = new THREE.Group();
   globe.add(pins);
+  const worldPos = new THREE.Vector3();
 
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
@@ -199,6 +235,7 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
   let lastY = 0;
   let hoverId = null;
   let raf = 0;
+  let wishGen = 0;
 
   function size() {
     const w = container.clientWidth || 1;
@@ -209,34 +246,36 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
   }
 
   function setWishes(next) {
+    const gen = ++wishGen;
     wishes = next || [];
     pins.clear();
     const points = fibonacciSphere(wishes.length, 148);
     wishes.forEach((wish, index) => {
       const group = new THREE.Group();
       group.position.copy(points[index]);
-      const pin = new THREE.Mesh(
-        new THREE.SphereGeometry(6.4, 18, 18),
-        new THREE.MeshStandardMaterial({
-          color: GOLD,
-          emissive: GOLD,
-          emissiveIntensity: 0.35,
-          roughness: 0.35,
-          metalness: 0.55,
+      group.userData.depthScale = true;
+
+      const thumb = new THREE.Mesh(
+        new THREE.PlaneGeometry(28, 35),
+        new THREE.MeshBasicMaterial({
+          map: drawPinCanvas(null, wish.name),
+          transparent: true,
+          side: THREE.DoubleSide,
         }),
       );
-      pin.userData.wish = wish;
-      group.add(pin);
-
-      const card = new THREE.Mesh(
-        new THREE.PlaneGeometry(68, 42),
-        new THREE.MeshBasicMaterial({ map: cardTexture(wish), transparent: true }),
-      );
-      card.position.set(26, 16, 0);
-      card.userData.wish = wish;
-      card.userData.billboard = true;
-      group.add(card);
+      thumb.userData.wish = wish;
+      thumb.userData.billboard = true;
+      group.add(thumb);
       pins.add(group);
+
+      captureFrame(wish.url).then((frame) => {
+        if (gen !== wishGen) return;
+        const map = drawPinCanvas(frame, wish.name);
+        const old = thumb.material.map;
+        thumb.material.map = map;
+        thumb.material.needsUpdate = true;
+        old?.dispose();
+      });
     });
   }
 
@@ -309,6 +348,13 @@ export function createGlobe(container, { hoverEl, onSelect } = {}) {
     badge.lookAt(camera.position);
     pins.traverse((obj) => {
       if (obj.userData.billboard) obj.lookAt(camera.position);
+      if (obj.userData.depthScale) {
+        obj.getWorldPosition(worldPos);
+        const dist = worldPos.distanceTo(camera.position);
+        const t = THREE.MathUtils.clamp((dist - 210) / 320, 0, 1);
+        const s = THREE.MathUtils.lerp(1.45, 0.38, t);
+        obj.scale.setScalar(s);
+      }
     });
     renderer.render(scene, camera);
   }
