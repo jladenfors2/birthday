@@ -87,7 +87,7 @@ function sessionPayload(session, req) {
     id: session.id,
     createdAt: session.createdAt,
     shareUrl: `${publicBase(req)}/w/${session.id}`,
-    memoryUrl: `${publicBase(req)}/memory/${session.id}`,
+    memoryUrl: `${publicBase(req)}/earth-view/${session.id}`,
     wishCount: session.wishes.length,
     wishes: session.wishes.map((wish) => ({
       id: wish.id,
@@ -234,8 +234,13 @@ app.get("/w/:id", (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "wish.html"));
 });
 
-app.get("/memory/:id", (req, res) => {
+app.get("/earth-view/:id", (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "memory.html"));
+});
+
+app.get("/memory/:id", (req, res) => {
+  const query = req.url.includes("?") ? req.url.slice(req.url.indexOf("?")) : "";
+  res.redirect(`/earth-view/${req.params.id}${query}`);
 });
 
 function campaign(store) {

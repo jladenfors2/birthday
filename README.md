@@ -10,7 +10,7 @@ Live: [https://katarina50.up.railway.app](https://katarina50.up.railway.app)
 
 1. På värdsidan skapas en länk (svenska eller engelska).
 2. Gästen öppnar länken, spelar in 10 sekunder och skickar.
-3. Hälsningarna dyker upp i valvet. Glob-länken är till för att spara och visa upp dem sen.
+3. Hälsningarna dyker upp under Alla filmer. Earth-view är minnessidan att spara och visa upp.
 
 Gästlänken kräver ingen inloggning. Värdsidan är skyddad med användarnamn och lösenord.
 
