@@ -1,6 +1,6 @@
 import { applyI18n, langFromUrl, t } from "./i18n.js";
 
-const RECORD_MS = 10_000;
+const RECORD_MS = 15_000;
 const COUNTDOWN_S = 3;
 const sessionId = location.pathname.split("/").filter(Boolean)[1] || "";
 const lang = langFromUrl();
@@ -58,6 +58,7 @@ let recordedBlob = null;
 let recordedType = "";
 let tickTimer = null;
 let countdownTimer = null;
+let stopTimer = null;
 let countingDown = false;
 let meterFrame = 0;
 
@@ -166,6 +167,7 @@ function startAudioMeter(mediaStream) {
 
 function stopRecordingClock() {
   clearInterval(tickTimer);
+  clearTimeout(stopTimer);
   recBadge.classList.add("hidden");
 }
 
@@ -243,8 +245,8 @@ function beginRecording() {
   };
 
   recorder.start();
-  startButton.disabled = true;
-  startLabel.textContent = t(lang, "recording");
+  startButton.disabled = false;
+  startLabel.textContent = t(lang, "stopRecord");
   recBadge.classList.remove("hidden");
 
   const started = Date.now();
@@ -255,9 +257,16 @@ function beginRecording() {
   update();
   tickTimer = setInterval(update, 200);
 
-  window.setTimeout(() => {
-    if (recorder && recorder.state === "recording") recorder.stop();
-  }, RECORD_MS);
+  stopTimer = window.setTimeout(stopRecording, RECORD_MS);
+}
+
+function stopRecording() {
+  if (recorder && recorder.state === "recording") recorder.stop();
+}
+
+function toggleRecording() {
+  if (recorder) stopRecording();
+  else startCountdownThenRecord();
 }
 
 async function sendWish() {
@@ -319,7 +328,7 @@ document.querySelector("#ready").addEventListener("click", async () => {
   show(3);
   await openCamera();
 });
-startButton.addEventListener("click", startCountdownThenRecord);
+startButton.addEventListener("click", toggleRecording);
 retryCam.addEventListener("click", () => {
   stopCountdown();
   openCamera();

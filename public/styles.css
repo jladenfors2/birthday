@@ -378,6 +378,18 @@ h2 {
   overflow: hidden;
 }
 
+.hero-portrait {
+  position: relative;
+  width: 10rem;
+  height: 10rem;
+  margin-inline: auto;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  object-position: 63% 32%;
+  border: 4px solid var(--surface-container-lowest);
+  box-shadow: 0 4px 16px rgba(43, 36, 33, 0.15);
+}
+
 .card.low {
   background: var(--surface-container-low);
 }
