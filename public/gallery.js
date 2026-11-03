@@ -12,6 +12,7 @@ const lightbox = document.querySelector("#lightbox");
 const lightboxVideo = document.querySelector("#lightbox-video");
 const lightboxName = document.querySelector("#lightbox-name");
 const lightboxNote = document.querySelector("#lightbox-note");
+let sessionId = "";
 
 function closeLightbox() {
   lightbox.classList.add("hidden");
@@ -62,7 +63,18 @@ function pinCard(wish) {
   caption.className = "pin-caption";
   const name = document.createElement("strong");
   name.textContent = wish.name || t(lang, "anonymous");
-  caption.append(name);
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "pin-delete";
+  remove.title = t(lang, "delete");
+  remove.setAttribute("aria-label", t(lang, "delete"));
+  remove.innerHTML = '<span class="material-symbols-outlined">delete</span>';
+  remove.addEventListener("click", () => deleteWish(wish, pin, remove));
+
+  const head = document.createElement("div");
+  head.className = "pin-caption-head";
+  head.append(name, remove);
+  caption.append(head);
   if (wish.note) {
     const note = document.createElement("p");
     note.textContent = wish.note;
@@ -94,6 +106,27 @@ function pinCard(wish) {
   return pin;
 }
 
+async function deleteWish(wish, pin, button) {
+  const name = wish.name || t(lang, "anonymous");
+  if (!confirm(t(lang, "deleteConfirm", { name }))) return;
+  button.disabled = true;
+  const res = await fetch(`/api/sessions/${sessionId}/wishes/${wish.id}`, { method: "DELETE" }).catch(
+    () => null,
+  );
+  if (res?.status === 401) {
+    location.href = `/login?next=${encodeURIComponent("/gallery")}`;
+    return;
+  }
+  if (!res?.ok && res?.status !== 404) {
+    button.disabled = false;
+    alert((await res?.json().catch(() => null))?.error || "Could not delete the video.");
+    return;
+  }
+  pin.querySelector("video")?.pause();
+  pin.remove();
+  empty.classList.toggle("hidden", board.children.length > 0);
+}
+
 async function load() {
   const res = await fetch("/api/sessions");
   if (res.status === 401) {
@@ -101,6 +134,7 @@ async function load() {
     return;
   }
   const sessions = await res.json();
+  sessionId = sessions[0]?.id || "";
   const wishes = (sessions[0]?.wishes || []).slice().reverse();
   empty.classList.toggle("hidden", wishes.length > 0);
   board.replaceChildren();

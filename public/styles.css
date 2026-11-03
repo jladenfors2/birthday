@@ -1318,10 +1318,49 @@ a.btn {
   padding: 0.55rem 0.2rem 0;
 }
 
+.pin-caption-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .pin-caption strong {
   display: block;
   font-size: 14px;
   font-weight: 650;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pin-delete {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  margin: -0.3rem -0.2rem 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+}
+
+.pin-delete .material-symbols-outlined {
+  font-size: 19px;
+}
+
+.pin-delete:hover,
+.pin-delete:focus-visible {
+  background: color-mix(in srgb, var(--error) 12%, transparent);
+  color: var(--error);
+}
+
+.pin-delete:disabled {
+  opacity: 0.4;
+  cursor: progress;
 }
 
 .pin-caption p {
