@@ -1,5 +1,3 @@
-import { normalizeLang, withLang } from "./i18n.js";
-
 export async function bindGlobeNav() {
   const link = document.querySelector("#nav-globe");
   if (!link) return;
@@ -8,9 +6,7 @@ export async function bindGlobeNav() {
     if (!res.ok) return;
     const sessions = await res.json();
     const url = sessions[0]?.memoryUrl;
-    if (!url) return;
-    const lang = normalizeLang(localStorage.getItem("birthday-link-lang") || "sv");
-    link.href = withLang(url, lang);
+    if (url) link.href = url;
   } catch {
     /* keep placeholder href */
   }

@@ -1,8 +1,6 @@
-import { applyI18n, normalizeLang, t, withLang } from "./i18n.js";
-import { bindGlobeNav } from "./nav.js";
+import { applyI18n, detectLang, t } from "./i18n.js";
 
-const LANG_KEY = "birthday-link-lang";
-let linkLang = normalizeLang(localStorage.getItem(LANG_KEY) || "sv");
+const lang = detectLang();
 
 const createButton = document.querySelector("#create");
 const active = document.querySelector("#active");
@@ -22,22 +20,10 @@ async function api(url, options) {
   return data;
 }
 
-function syncLangButtons() {
-  for (const button of document.querySelectorAll(".lang-toggle [data-lang]")) {
-    button.classList.toggle("on", button.dataset.lang === linkLang);
-  }
-}
-
-function applyHostLang() {
-  applyI18n(linkLang);
-  document.title = t(linkLang, "hostTitle");
-  syncLangButtons();
-}
-
 function refreshUrls(session) {
-  shareInput.value = withLang(session.shareUrl, linkLang);
+  shareInput.value = session.shareUrl;
   const globe = document.querySelector("#nav-globe");
-  if (globe && session.memoryUrl) globe.href = withLang(session.memoryUrl, linkLang);
+  if (globe && session.memoryUrl) globe.href = session.memoryUrl;
 }
 
 async function loadSession(id) {
@@ -64,20 +50,8 @@ async function ensureCampaign() {
   return loadSession(session.id);
 }
 
-for (const button of document.querySelectorAll(".lang-toggle [data-lang]")) {
-  button.addEventListener("click", () => {
-    linkLang = normalizeLang(button.dataset.lang);
-    localStorage.setItem(LANG_KEY, linkLang);
-    applyHostLang();
-    if (shareInput.value) {
-      shareInput.value = withLang(shareInput.value, linkLang);
-    }
-    bindGlobeNav();
-    if (currentId) loadSession(currentId).catch(() => {});
-  });
-}
-
-applyHostLang();
+applyI18n(lang);
+document.title = t(lang, "hostTitle");
 
 createButton.addEventListener("click", async () => {
   createButton.disabled = true;

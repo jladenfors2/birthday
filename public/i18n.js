@@ -14,8 +14,6 @@ export const strings = {
     studioKicker: "Studio generator",
     createLink: "Create a tribute link",
     capture: "Capture birthday wishes",
-    linkLanguage: "Link language",
-    langHint: "Choose the language friends will see when they open the link.",
     shareLink: "Share this link",
     shareHint: "Anyone with the link can record a wish. No login needed.",
     copy: "Copy",
@@ -161,8 +159,6 @@ export const strings = {
     studioKicker: "Inbjudan",
     createLink: "Skapa en länk",
     capture: "Skapa länk",
-    linkLanguage: "Språk",
-    langHint: "Vilket språk ska gästerna mötas av när de öppnar länken?",
     shareLink: "Dela länken",
     shareHint: "Alla som har länken kan spela in en hälsning – ingen inloggning behövs.",
     copy: "Kopiera",
@@ -303,8 +299,12 @@ export function normalizeLang(value) {
   return value === "sv" ? "sv" : "en";
 }
 
-export function langFromUrl() {
-  return normalizeLang(new URLSearchParams(location.search).get("lang"));
+export function detectLang() {
+  const fromUrl = new URLSearchParams(location.search).get("lang");
+  if (fromUrl) return normalizeLang(fromUrl);
+  const preferred = navigator.languages?.length ? navigator.languages : [navigator.language];
+  const first = preferred.find((code) => /^(sv|en)\b/i.test(code || ""));
+  return normalizeLang(first?.slice(0, 2).toLowerCase());
 }
 
 export function t(lang, key, vars = {}) {
@@ -313,12 +313,6 @@ export function t(lang, key, vars = {}) {
     text = text.replaceAll(`{${name}}`, String(value));
   }
   return text;
-}
-
-export function withLang(url, lang) {
-  const parsed = new URL(url, location.origin);
-  parsed.searchParams.set("lang", normalizeLang(lang));
-  return parsed.toString();
 }
 
 export function applyI18n(lang, root = document) {

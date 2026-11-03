@@ -893,32 +893,6 @@ a.btn {
   font: inherit;
 }
 
-.lang-toggle {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.35rem;
-  background: var(--surface-container-low);
-  border-radius: var(--radius-full);
-  padding: 0.25rem;
-}
-
-.lang-toggle button {
-  border: 0;
-  border-radius: var(--radius-full);
-  min-height: 2.4rem;
-  background: transparent;
-  color: var(--on-surface-variant);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 650;
-  cursor: pointer;
-}
-
-.lang-toggle button.on {
-  background: var(--primary-container);
-  color: var(--on-primary-container);
-}
-
 .share-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

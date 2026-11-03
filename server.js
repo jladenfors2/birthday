@@ -86,8 +86,8 @@ function sessionPayload(session, req) {
   return {
     id: session.id,
     createdAt: session.createdAt,
-    shareUrl: `${publicBase(req)}/w/${session.id}`,
-    memoryUrl: `${publicBase(req)}/earth-view/${session.id}`,
+    shareUrl: `${publicBase(req)}/hej`,
+    memoryUrl: `${publicBase(req)}/earth-view`,
     wishCount: session.wishes.length,
     wishes: session.wishes.map((wish) => ({
       id: wish.id,
@@ -230,11 +230,11 @@ app.get("/gallery", requireAdminPage, (_req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "gallery.html"));
 });
 
-app.get("/w/:id", (req, res) => {
+app.get(["/hej", "/w/:id"], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "wish.html"));
 });
 
-app.get("/earth-view/:id", (req, res) => {
+app.get(["/earth-view", "/earth-view/:id"], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "memory.html"));
 });
 
@@ -266,6 +266,12 @@ app.post("/api/sessions", requireAdminApi, async (req, res) => {
 app.get("/api/sessions", requireAdminApi, async (req, res) => {
   const store = await readStore();
   res.json(store.sessions.map((session) => sessionPayload(session, req)));
+});
+
+app.get("/api/campaign", async (req, res) => {
+  const session = campaign(await readStore());
+  if (!session) return res.status(404).json({ error: "This link is not valid." });
+  res.json(sessionPayload(session, req));
 });
 
 app.get("/api/sessions/:id", async (req, res) => {

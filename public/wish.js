@@ -1,9 +1,9 @@
-import { applyI18n, langFromUrl, t } from "./i18n.js";
+import { applyI18n, detectLang, t } from "./i18n.js";
 
 const RECORD_MS = 15_000;
 const COUNTDOWN_S = 3;
-const sessionId = location.pathname.split("/").filter(Boolean)[1] || "";
-const lang = langFromUrl();
+let sessionId = "";
+const lang = detectLang();
 applyI18n(lang);
 document.title = t(lang, "wishTitle");
 
@@ -359,16 +359,13 @@ for (const spark of document.querySelectorAll(".spark")) {
 }
 
 async function boot() {
-  if (!/^[a-f0-9]{16}$/.test(sessionId)) {
-    show("invalid");
-    return;
-  }
   try {
-    const res = await fetch(`/api/sessions/${sessionId}`);
+    const res = await fetch("/api/campaign");
     if (!res.ok) {
       show("invalid");
       return;
     }
+    sessionId = (await res.json()).id;
     show(1);
   } catch {
     show("invalid");

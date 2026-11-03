@@ -1,7 +1,7 @@
-import { applyI18n, normalizeLang, t } from "./i18n.js";
+import { applyI18n, detectLang, t } from "./i18n.js";
 import { bindGlobeNav } from "./nav.js";
 
-const lang = normalizeLang(localStorage.getItem("birthday-link-lang") || "sv");
+const lang = detectLang();
 applyI18n(lang);
 document.title = t(lang, "galleryTitle");
 bindGlobeNav();

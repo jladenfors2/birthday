@@ -1,8 +1,7 @@
 import { createGlobe } from "./globe.js";
-import { applyI18n, langFromUrl, t } from "./i18n.js";
+import { applyI18n, detectLang, t } from "./i18n.js";
 
-const sessionId = location.pathname.split("/").filter(Boolean)[1] || "";
-const lang = langFromUrl();
+const lang = detectLang();
 applyI18n(lang);
 document.title = t(lang, "memoryTitle");
 
@@ -40,14 +39,9 @@ copyButton.addEventListener("click", async () => {
 });
 
 async function boot() {
-  if (!/^[a-f0-9]{16}$/.test(sessionId)) {
-    invalid.classList.remove("hidden");
-    return;
-  }
-
   let session;
   try {
-    const res = await fetch(`/api/sessions/${sessionId}`);
+    const res = await fetch("/api/campaign");
     if (!res.ok) {
       invalid.classList.remove("hidden");
       return;

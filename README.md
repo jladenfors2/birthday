@@ -8,7 +8,7 @@ Live: [https://katarina50.up.railway.app](https://katarina50.up.railway.app)
 
 ## Så funkar det
 
-1. På värdsidan skapas en länk (svenska eller engelska).
+1. På värdsidan skapas en länk, `/hej`. Gästsidan visas på svenska eller engelska beroende på webbläsarens språk.
 2. Gästen öppnar länken, spelar in 15 sekunder och skickar.
 3. Hälsningarna dyker upp under Alla filmer. Earth-view är minnessidan att spara och visa upp.
 
