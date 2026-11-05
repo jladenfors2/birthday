@@ -50,6 +50,7 @@ function pinCard(wish) {
   video.loop = true;
   video.playsInline = true;
   video.preload = "metadata";
+  if (wish.posterUrl) video.poster = wish.posterUrl;
   video.src = wish.url;
   video.setAttribute("playsinline", "");
 
@@ -83,25 +84,11 @@ function pinCard(wish) {
 
   pin.append(media, caption);
 
-  video.addEventListener("mouseenter", () => video.play().catch(() => {}));
-  video.addEventListener("mouseleave", () => {
+  media.addEventListener("mouseenter", () => video.play().catch(() => {}));
+  media.addEventListener("mouseleave", () => {
     video.pause();
-    video.currentTime = 0;
+    video.load();
   });
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) video.play().catch(() => {});
-        else {
-          video.pause();
-          video.currentTime = 0;
-        }
-      }
-    },
-    { threshold: 0.6 },
-  );
-  observer.observe(video);
 
   return pin;
 }

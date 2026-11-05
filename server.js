@@ -1,5 +1,6 @@
 import express from "express";
 import multer from "multer";
+import { execFile } from "child_process";
 import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 import fs from "fs/promises";
 import { existsSync, mkdirSync, readFileSync } from "fs";
@@ -51,22 +52,100 @@ async function readStore() {
   }
 }
 
-let writeQueue = Promise.resolve();
+let storeQueue = Promise.resolve();
 
-function writeStore(store) {
-  writeQueue = writeQueue.then(async () => {
-    const tmp = `${DATA_FILE}.tmp`;
-    await fs.writeFile(tmp, JSON.stringify(store, null, 2));
-    await fs.rename(tmp, DATA_FILE);
-  });
-  return writeQueue;
+async function writeStore(store) {
+  const tmp = `${DATA_FILE}.tmp`;
+  await fs.writeFile(tmp, JSON.stringify(store, null, 2));
+  await fs.rename(tmp, DATA_FILE);
 }
 
-async function updateStore(mutator) {
+function updateStore(mutator) {
+  const run = storeQueue.then(async () => {
+    const store = await readStore();
+    const result = mutator(store);
+    await writeStore(store);
+    return result;
+  });
+  storeQueue = run.catch(() => {});
+  return run;
+}
+
+// Browser recordings (WebM from MediaRecorder) have no duration or seek index,
+// so some browsers show an empty frame. Re-encode them to MP4 that plays everywhere.
+function transcodeToMp4(input, output) {
+  return new Promise((resolve, reject) => {
+    execFile(
+      "ffmpeg",
+      [
+        "-y", "-v", "error", "-i", input,
+        "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2",
+        "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p",
+        "-c:a", "aac", "-b:a", "128k",
+        "-movflags", "+faststart",
+        "-f", "mp4", output,
+      ],
+      { timeout: 5 * 60 * 1000 },
+      (err, _stdout, stderr) => (err ? reject(new Error(stderr || err.message)) : resolve()),
+    );
+  });
+}
+
+function extractPoster(input, output) {
+  return new Promise((resolve, reject) => {
+    execFile(
+      "ffmpeg",
+      ["-y", "-v", "error", "-ss", "0.5", "-i", input, "-frames:v", "1", "-vf", "scale=720:-2", "-q:v", "4", output],
+      { timeout: 60 * 1000 },
+      (err, _stdout, stderr) => (err ? reject(new Error(stderr || err.message)) : resolve()),
+    );
+  });
+}
+
+async function convertWish(wishId) {
   const store = await readStore();
-  const result = mutator(store);
-  await writeStore(store);
-  return result;
+  const wish = store.sessions.flatMap((s) => s.wishes).find((w) => w.id === wishId);
+  if (!wish || (wish.filename.endsWith(".mp4") && wish.poster)) return;
+
+  const changes = {};
+  if (!wish.filename.endsWith(".mp4")) {
+    const filename = `${wish.id}.mp4`;
+    const tmp = path.join(UPLOAD_DIR, `${wish.id}.converting.mp4`);
+    try {
+      await transcodeToMp4(path.join(UPLOAD_DIR, wish.filename), tmp);
+      await fs.rename(tmp, path.join(UPLOAD_DIR, filename));
+    } catch (err) {
+      await fs.unlink(tmp).catch(() => {});
+      console.error(`Could not convert ${wish.filename}:`, err.message);
+      return;
+    }
+    const { size } = await fs.stat(path.join(UPLOAD_DIR, filename));
+    Object.assign(changes, {
+      originalFilename: wish.filename,
+      filename,
+      mimeType: "video/mp4",
+      size,
+    });
+  }
+
+  const poster = `${wish.id}.jpg`;
+  try {
+    await extractPoster(path.join(UPLOAD_DIR, changes.filename || wish.filename), path.join(UPLOAD_DIR, poster));
+    changes.poster = poster;
+  } catch (err) {
+    console.error(`Could not make a poster for ${wish.id}:`, err.message);
+  }
+
+  await updateStore((next) => {
+    const current = next.sessions.flatMap((s) => s.wishes).find((w) => w.id === wishId);
+    if (current) Object.assign(current, changes);
+  });
+}
+
+let convertQueue = Promise.resolve();
+
+function queueConversion(wishId) {
+  convertQueue = convertQueue.then(() => convertWish(wishId)).catch((err) => console.error(err));
 }
 
 function publicBase(req) {
@@ -93,6 +172,7 @@ function sessionPayload(session, req) {
       id: wish.id,
       createdAt: wish.createdAt,
       url: `/uploads/${wish.filename}`,
+      posterUrl: wish.poster ? `/uploads/${wish.poster}` : "",
       mimeType: wish.mimeType,
       size: wish.size,
       name: wish.name || "",
@@ -300,8 +380,10 @@ app.delete("/api/sessions/:id/wishes/:wishId", requireAdminApi, async (req, res)
       const [wish] = session.wishes.splice(index, 1);
       return wish;
     });
-    const file = path.basename(removed.filename || "");
-    if (file) await fs.unlink(path.join(UPLOAD_DIR, file)).catch(() => {});
+    for (const name of [removed.filename, removed.originalFilename, removed.poster]) {
+      const file = path.basename(name || "");
+      if (file) await fs.unlink(path.join(UPLOAD_DIR, file)).catch(() => {});
+    }
     res.status(204).end();
   } catch (error) {
     if (error.message === "missing-session" || error.message === "missing-wish") {
@@ -351,6 +433,7 @@ app.post("/api/sessions/:id/wishes", (req, res) => {
         session.wishes.push(created);
         return created;
       });
+      queueConversion(wish.id);
       res.status(201).json({
         id: wish.id,
         createdAt: wish.createdAt,
@@ -379,4 +462,13 @@ app.use((err, _req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`Birthday wishes running at http://localhost:${PORT}`);
+  readStore()
+    .then((store) => {
+      for (const session of store.sessions) {
+        for (const wish of session.wishes) {
+          if (!wish.filename.endsWith(".mp4") || !wish.poster) queueConversion(wish.id);
+        }
+      }
+    })
+    .catch((err) => console.error(err));
 });
